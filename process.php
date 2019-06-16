@@ -2,12 +2,12 @@
 ini_set("display_errors", 0);
 error_reporting(0);
 
-require_once ("resources/lib/libMultiCurl.php");
+// require_once ("resources/lib/libMultiCurl.php");
 
 /**
  * This the mail class which handles the validation of received URLs, getting the curl response from parent class and giving out the final response as required
  */
-class ProcessURLs extends MultiCURL
+class ProcessURLs
 {
     public $receivedURLs = array();
     public $finalResult  = array();
@@ -31,13 +31,20 @@ class ProcessURLs extends MultiCURL
         } // ValidateURLs ends
     } // class ProcessURLs ends
 
-    /**
-     * Hit the parent class to get the curl output and do some other operation if required
-     */
-    public function GetDataFromMultiCURL()
+    public function WriteData()
     {
-        return parent::GetURLData($this->receivedURLs);
-    } //function GetDataFromMultiCURL ends
+        $id = self::GenerateID();
+        // print_r(getcwd());
+        file_put_contents(getcwd() . "/files/{$id}", implode("\n", $this->receivedURLs));
+        return $id;
+    } // function WriteData ends
+
+    private function GenerateID()
+    {
+        $now  = DateTime::createFromFormat('U.u', microtime(true));
+        $data = crc32($now->format("Y-m-d H:i:s.u"));
+        return $data;
+    } // function GenerateID ends
 
     /**
      * Get the final required output which will be sent to the client
@@ -63,7 +70,9 @@ if ($_POST && count($_POST) > 0)
 {
     $processURLs = new ProcessURLs();
     $processURLs->ValidateURLs($_POST["urls"]);
-    $result                = $processURLs->GetDataFromMultiCURL();
-    $responseArray["urls"] = $processURLs->GetFinalResult($result);
+    $id = $processURLs->WriteData();
+    // $result                = $processURLs->GetDataFromMultiCURL();
+    $responseArray["urls"] = $processURLs->finalResult;
+    $responseArray["id"]   = $id;
 }
 echo json_encode($responseArray);
