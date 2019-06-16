@@ -1,0 +1,7 @@
+This documents contains the thought process while doing the task
+
+1. For simplicity, PHPs inbuilt multi exec or async curl is used
+2. When going in production or in terms of scalability, other options like RabbitMQ, ReactPHP could be explored
+3. Tried using the server side events to show the progress, but could not do it in combination of AJAX
+4. The file libMultiCurl.php can be expanded to be used as library file with some changes
+5. Focus was more on executing the requests concurrently and hence use of async curl
